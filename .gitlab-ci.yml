@@ -15,9 +15,9 @@ build:
   script:
     - docker info
     - docker build -f Dockerfile . -t my-python-web-server
-    - docker login --username ciprianciobotaru -p Kr0k0dil3#
-    - docker tag my-python-web-server ciprianciobotaru/my-python-web-server
-    - docker push ciprianciobotaru/my-python-web-server
+    - docker login --username tomafcsb -p Flacara2004
+    - docker tag my-python-web-server tomafcsb/my-python-web-server
+    - docker push tomafcsb/my-python-web-server
     - echo "End build stage"
 
     
