@@ -1,0 +1,84 @@
+stages:
+  - build
+  - test
+  - deploy
+  
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+build:
+  stage: build
+  image: docker:27.4.1
+  services:
+    - docker:27.4.1-dind
+  script:
+    - docker info
+    - docker build -f Dockerfile . -t my-python-web-server
+    - docker login --username ciprianciobotaru -p Kr0k0dil3#
+    - docker tag my-python-web-server ciprianciobotaru/my-python-web-server
+    - docker push ciprianciobotaru/my-python-web-server
+    - echo "End build stage"
+
+    
+  rules:
+    #never or manual or always
+    - when: manual    
+
+test:
+  stage: test
+  image: docker:27.4.1
+  services:
+    - docker:27.4.1-dind
+  #before_script:
+  #  - apk update && apk add curl curl-dev bash
+  script:
+    - docker info
+    - docker version
+    - docker pull ciprianciobotaru/my-python-web-server
+    - docker run -d --name my-python ciprianciobotaru/my-python-web-server
+    - sleep 20
+    #- curl "http://my-python:8000"
+    - docker exec my-python /bin/bash -c 'curl localhost'
+    - echo "End test stage"
+  rules:
+    #never or manual or always
+    - when: manual
+
+deploy:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    ### Setup --> 
+    #- kubectl config use-context path/to/agent/project:agent-name
+    #- kubectl config use-context test5712806/testk8s:gitoke  
+    #- kubectl create secret generic ca-ser-secret --from-file=tls.crt=certificates/tls.crt --from-file=tls.key=certificates/tls.key --from-file=ca.crt=certificates/ca.crt
+    #To install the latest Metrics Server release from the components.yaml manifest, run the following command.
+    #- kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+    ### <--
+    - kubectl config use-context $KUBE_CONTEXT
+    - kubectl get all
+    - kubectl apply -f kubernetes/my-python-deployment.yaml
+    - kubectl apply -f kubernetes/my-python-hpa.yaml
+    - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
+    #- kubectl scale --replicas=3 deployment my-python
+    # Smoke test
+    - sleep 10
+    #- kubectl exec -it my-python-769b8898c7-k84tt -- /bin/sh -c "x=1; while  [ $x -le 5 ]; do curl localhost; x=$(( $x + 1 )); done"
+    - kubectl get all
+    - kubectl get events
+    - kubectl top nodes
+    - echo "End deploy stage"
+    # manual tests
+    #- kubectl run -it load-generator --image=busybox /bin/sh
+    #   while true; do wget -q -O- http://141.144.240.138; done
+    #- kubectl exec -it load-generator -- /bin/sh -c "while true; do wget -q -O- http://141.144.240.138; done"
+   
+
+  rules:
+    #never or manual or always
+    - when: manual    
