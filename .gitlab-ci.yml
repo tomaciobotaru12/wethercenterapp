@@ -6,6 +6,10 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
 
+before_script:
+  # Log into Docker using credentials from GitLab CI/CD environment variables
+  - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin
+
 build:
   stage: build
   image: docker:27.4.1
