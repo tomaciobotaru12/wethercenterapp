@@ -7,8 +7,8 @@ variables:
   DOCKER_DRIVER: overlay2
 
 before_script:
-  # Log into Docker using credentials from GitLab CI/CD environment variables
-  - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin
+  # Login to Docker registry using non-interactive method
+  - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USER" --password-stdin
 
 build:
   stage: build
@@ -18,12 +18,11 @@ build:
   script:
     - docker info
     - docker build -f Dockerfile . -t my-python-web-server
-    - docker login --username $DOCKER_USER -p $DOCKER_PASSWORD
-    - docker tag my-python-web-server $DOCKER_USER/my-python-web-server
-    - docker push $DOCKER_USER/my-python-web-server
+    - docker tag my-python-web-server tomafcsb/my-python-web-server
+    - docker push tomafcsb/my-python-web-server
     - echo "End build stage"
   rules:
-    - when: manual
+    - when: manual    
 
 test:
   stage: test
@@ -31,8 +30,10 @@ test:
   services:
     - docker:27.4.1-dind
   script:
-    - docker pull $DOCKER_USER/my-python-web-server
-    - docker run -d --name my-python $DOCKER_USER/my-python-web-server
+    - docker info
+    - docker version
+    - docker pull ciprianciobotaru/my-python-web-server
+    - docker run -d --name my-python ciprianciobotaru/my-python-web-server
     - sleep 20
     - docker exec my-python /bin/bash -c 'curl localhost'
     - echo "End test stage"
@@ -45,9 +46,15 @@ deploy:
     name: bitnami/kubectl:latest
     entrypoint: ['']
   script:
+    - kubectl config get-contexts
     - kubectl config use-context $KUBE_CONTEXT
+    - kubectl get all
     - kubectl apply -f kubernetes/my-python-deployment.yaml
-    - kubectl apply -f kubernetes/my-python-lb-svc.yaml
+    - kubectl apply -f kubernetes/my-python-hpa.yaml
+    - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
+    - kubectl get all
+    - kubectl get events
+    - kubectl top nodes
     - echo "End deploy stage"
   rules:
     - when: manual
