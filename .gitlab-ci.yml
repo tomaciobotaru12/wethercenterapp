@@ -6,10 +6,6 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
 
-before_script:
-  # Login to Docker registry using non-interactive method
-  - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USER" --password-stdin
-
 build:
   stage: build
   image: docker:27.4.1
@@ -18,11 +14,10 @@ build:
   script:
     - docker info
     - docker build -f Dockerfile . -t my-python-web-server
+    - docker login --username tomafcsb -p Flacara2004
     - docker tag my-python-web-server tomafcsb/my-python-web-server
     - docker push tomafcsb/my-python-web-server
-    - echo "End build stage"
-  rules:
-    - when: manual    
+    - echo "End build stage"  
 
 test:
   stage: test
