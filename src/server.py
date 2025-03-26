@@ -1,58 +1,45 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import time
-import json
-from socketserver import ThreadingMixIn
-import threading
+import http.server
+import ssl
+import argparse
 import os
-from string import Template
+import logging
 
-hostName = "0.0.0.0"
-serverPort = 80
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-class Handler(BaseHTTPRequestHandler):
-  def do_GET(self):
-      # curl http://<ServerIP>/index.html
-      version="v1.0"
-      if self.path == "/":
-          # Respond with the file contents.
-          page_body_item=""          
-          if os.environ.get('POD_NMAE') is not None:
-            print(version+" POD_NAME:"+os.environ.get('HOSTNAME'))
-            page_body_item = version + " POD_NMAE: " +os.environ.get('POD_NMAE')
-          elif os.environ.get('HOSTNAME') is not None:
-            print(version +" HOSTNAME:"+os.environ.get('HOSTNAME'))
-            page_body_item = version +" HOSTNAME: " +os.environ.get('HOSTNAME')
-          else:
-            page_body_item = version  
+class MyHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"<h1>Welcome to WeatherCenter</h1><p>Your server is running!</p>")
 
-          print("page_body: "+page_body_item)
-          self.send_response(200)
-          self.send_header("Content-type", "text/html")
-          self.end_headers()
-          with open('index.html', 'r') as htmlfile:
-              for html_line in htmlfile.read().split('\n'):               
-                self.wfile.write(bytes(html_line.replace('{{OBS}}', page_body_item), 'utf-8'))          
-          
-          #content = open('index.html', 'rb').read()
-          #self.wfile.write(content)
-          
-          
-      else:
-          self.send_response(404)
+def run_server(port, use_https=False):
+    server_address = ("0.0.0.0", port)
+    httpd = http.server.HTTPServer(server_address, MyHandler)
+    
+    if use_https:
+        cert_file = os.environ.get("CERT_FILE", "certificates/wethercenter.crt")
+        key_file = os.environ.get("KEY_FILE", "certificates/wethercenter.key")
 
-      return
+        if not (os.path.exists(cert_file) and os.path.exists(key_file)):
+            logging.error("Certificate or key file not found! Running in HTTP mode instead.")
+        else:
+            logging.info("Starting server in HTTPS mode...")
+            httpd.socket = ssl.wrap_socket(httpd.socket, keyfile=key_file, certfile=cert_file, server_side=True)
 
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-  """Handle requests in a separate thread."""
+    logging.info(f"Server started on port {port} ({'HTTPS' if use_https else 'HTTP'})")
+    
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        logging.info("Shutting down server...")
+        httpd.server_close()
 
 if __name__ == "__main__":
-  webServer = ThreadedHTTPServer((hostName, serverPort), Handler)
-  print("Server started http://%s:%s" % (hostName, serverPort))
+    parser = argparse.ArgumentParser(description="Simple Python Web Server")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 80)), help="Port to run the server on")
+    parser.add_argument("--https", action="store_true", help="Enable HTTPS mode")
+    args = parser.parse_args()
 
-  try:
-      webServer.serve_forever()
-  except KeyboardInterrupt:
-      pass
-
-  webServer.server_close()
-  print("Server stopped.")
+    run_server(args.port, args.https)
