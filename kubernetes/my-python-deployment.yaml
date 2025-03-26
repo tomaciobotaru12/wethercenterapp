@@ -19,13 +19,18 @@ spec:
         image: ciprianciobotaru/my-python-web-server
         ports:
         - containerPort: 80
-        resources:
-          limits:
-            cpu: 10m
-          #requests:
-          #  cpu: 10m
+        - containerPort: 443
         env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+        - name: PORT
+          value: "80"
+        - name: CERT_FILE
+          value: "/app/certificates/wethercenter.crt"
+        - name: KEY_FILE
+          value: "/app/certificates/wethercenter.key"
+        volumeMounts:
+        - name: certs
+          mountPath: /app/certificates
+      volumes:
+      - name: certs
+        secret:
+          secretName: my-python-certificates
