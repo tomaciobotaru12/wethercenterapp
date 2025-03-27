@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-python
-        image: ciprianciobotaru/my-python-web-server
+        image: tomafcsb/my-python-web-server
         ports:
         - containerPort: 80
         - containerPort: 443
