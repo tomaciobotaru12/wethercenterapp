@@ -8,16 +8,15 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(b"<h1>Welcome to WeatherCenter</h1><p>Your server is running!</p>")
+    # No need to override do_GET()
+
+    def log_message(self, format, *args):
+        logging.info("%s - - %s", self.client_address[0], format % args)
 
 def run_server(port, use_https=False):
     server_address = ("0.0.0.0", port)
     httpd = http.server.HTTPServer(server_address, MyHandler)
-    
+
     if use_https:
         cert_file = os.environ.get("CERT_FILE", "certificates/wethercenter.crt")
         key_file = os.environ.get("KEY_FILE", "certificates/wethercenter.key")
@@ -29,7 +28,7 @@ def run_server(port, use_https=False):
             httpd.socket = ssl.wrap_socket(httpd.socket, keyfile=key_file, certfile=cert_file, server_side=True)
 
     logging.info(f"Server started on port {port} ({'HTTPS' if use_https else 'HTTP'})")
-    
+
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
