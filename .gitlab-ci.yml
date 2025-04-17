@@ -17,7 +17,7 @@ build:
     - docker login --username tomafcsb -p Flacara2004
     - docker tag my-python-web-server tomafcsb/my-python-web-server
     - docker push tomafcsb/my-python-web-server
-    - echo "End build stage"  
+    - echo "End build stage"
 
 test:
   stage: test
@@ -26,10 +26,9 @@ test:
     - docker:27.4.1-dind
   script:
     - docker info
-    - docker version
-    - docker pull ciprianciobotaru/my-python-web-server
-    - docker run -d --name my-python ciprianciobotaru/my-python-web-server
-    - sleep 20
+    - docker pull tomafcsb/my-python-web-server
+    - docker run -d --name my-python tomafcsb/my-python-web-server
+    - sleep 10
     - docker exec my-python /bin/bash -c 'curl localhost'
     - echo "End test stage"
   rules:
@@ -43,13 +42,14 @@ deploy:
   script:
     - kubectl config get-contexts
     - kubectl config use-context $KUBE_CONTEXT
-    - kubectl get all
     - kubectl apply -f kubernetes/my-python-deployment.yaml
     - kubectl apply -f kubernetes/my-python-hpa.yaml
     - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
-    - kubectl get all
+    - kubectl rollout restart deployment my-python  # 💥 This restarts pods!
+    - kubectl get pods
     - kubectl get events
     - kubectl top nodes
     - echo "End deploy stage"
   rules:
     - when: manual
+
