@@ -3,12 +3,55 @@ import ssl
 import argparse
 import os
 import logging
+import json
+import urllib.parse
+import urllib.request
 
-# Configure logging
+# === CONFIG ===
+API_KEY = "GZ89HBFLCJ8XLT7R8HEQJSTKK"
+WEATHER_API_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
+
+# Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
-    # No need to override do_GET()
+    def do_POST(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length).decode("utf-8")
+
+        try:
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Invalid JSON")
+            return
+
+        city = data.get("city", "London,UK")
+        encoded_city = urllib.parse.quote(city)
+
+        if self.path == "/api/weather":
+            api_url = f"{WEATHER_API_URL}/{encoded_city}?unitGroup=metric&include=current&key={API_KEY}"
+        elif self.path == "/api/forecast":
+            api_url = f"{WEATHER_API_URL}/{encoded_city}?unitGroup=metric&include=days&key={API_KEY}"
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not found")
+            return
+
+        try:
+            with urllib.request.urlopen(api_url) as response:
+                weather_data = response.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(weather_data)
+        except Exception as e:
+            logging.error(f"API error: {e}")
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(b"Error fetching weather data")
 
     def log_message(self, format, *args):
         logging.info("%s - - %s", self.client_address[0], format % args)

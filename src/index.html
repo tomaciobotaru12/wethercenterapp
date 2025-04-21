@@ -107,7 +107,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
   <script>
-    const API_KEY = "GZ89HBFLCJ8XLT7R8HEQJSTKK";
     const skycons = new Skycons({ "color": "#fff" });
     skycons.play();
 
@@ -136,14 +135,18 @@
     }
 
     async function getTodayWeather(cityName = null) {
-      let city = cityName || document.getElementById("city-input").value || "London,UK";
-      const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(city)}?unitGroup=metric&include=current&key=${API_KEY}`;
+      const city = cityName || document.getElementById("city-input").value || "London,UK";
 
       try {
-        const res = await fetch(url);
-        const data = await res.json();
+        const res = await fetch("/api/weather", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ city })
+        });
 
+        const data = await res.json();
         const current = data.currentConditions || data.days[0];
+
         document.getElementById("current-city").textContent = data.resolvedAddress;
         document.getElementById("current-temp").textContent = `${Math.round(current.temp)}°C`;
         document.getElementById("current-desc").textContent = current.conditions;
@@ -153,7 +156,7 @@
 
         localStorage.setItem("lastCity", data.resolvedAddress);
       } catch (err) {
-        console.error("Failed to fetch weather:", err);
+        console.error("Weather fetch failed:", err);
         alert("Could not retrieve weather. Try another city.");
       }
     }
@@ -199,3 +202,4 @@
   </script>
 </body>
 </html>
+
