@@ -3,6 +3,12 @@ WORKDIR /app
 
 # Copy source code
 COPY ./src/index.html index.html
+COPY ./src/forecast.html forecast.html
+COPY ./src/logo.png logo.png
+COPY ./src/clear.jpeg clear.jpeg
+COPY ./src/night.jpeg night.jpeg
+COPY ./src/rain.jpeg rain.jpeg
+COPY ./src/snow.jpg snow.jpg
 COPY ./src/server.py server.py
 
 # Copy SSL certificates (if available)
