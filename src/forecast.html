@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7 Day Forecast</title>
+  <style>
+    html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  background-image: url('clear.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  min-height: 100vh;
+}
+
+#forecast-container {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 700px;
+  margin: 40px auto;
+  width: 90%;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+header img {
+  height: 100px;
+}
+
+.forecast {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+
+.day {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 1.2em;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+.day:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 0.5em;
+}
+
+.temp {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.details {
+  font-size: 0.95em;
+  margin-top: 0.5em;
+}
+
+a {
+  display: block;
+  margin-top: 2em;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  background: #debff4;
+  padding: 10px 20px;
+  border-radius: 10px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a:hover {
+  background: #8b48d7;
+}
+
+  </style>
+</head>
+<body>
+  <div id="forecast-container">
+    <header>
+      <img src="logo.png" alt="Weather Center Logo">
+    </header>
+
+    <div class="forecast" id="forecast"></div>
+
+    <a href="index.html">← Back to Today</a>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
+  <script>
+    const API_KEY = "GZ89HBFLCJ8XLT7R8HEQJSTKK";
+    const skycons = new Skycons({"color": "#fff"});
+    skycons.play();
+
+    const backgroundMap = {
+      "clear-day": "clear.jpeg",
+      "clear-night": "night.jpeg",
+      "partly-cloudy-day": "clear.jpeg",
+      "partly-cloudy-night": "night.jpeg",
+      "cloudy": "clear.jpeg",
+      "rain": "rain.jpeg",
+      "showers-day": "rain.jpeg",
+      "showers-night": "rain.jpeg",
+      "snow": "snow.jpeg",
+      "snow-showers-day": "snow.jpeg",
+      "snow-showers-night": "snow.jpeg"
+    };
+
+    async function loadForecast() {
+      const city = localStorage.getItem("lastCity") || "London,UK";
+      const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(city)}?unitGroup=metric&include=days&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const forecast = document.getElementById("forecast");
+      forecast.innerHTML = "";
+
+      const iconToday = data.days[0].icon;
+      document.body.style.backgroundImage = `url('${backgroundMap[iconToday] || 'clear.jpeg'}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundPosition = 'center';
+
+      data.days.slice(0, 7).forEach(day => {
+        const dayElem = document.createElement("div");
+        dayElem.className = "day";
+        const date = new Date(day.datetime).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+        const iconId = `icon-${day.datetimeEpoch}`;
+        dayElem.innerHTML = `
+          <h3>${date}</h3>
+          <canvas id="${iconId}" class="icon"></canvas>
+          <div class="temp">${Math.round(day.tempmax)}° / ${Math.round(day.tempmin)}°C</div>
+          <div class="details">
+            ${day.conditions}<br>
+            💧 Humidity: ${day.humidity}%<br>
+            🌅 Sunrise: ${day.sunrise} | 🌇 Sunset: ${day.sunset}
+          </div>
+        `;
+        forecast.appendChild(dayElem);
+        if (day.icon) skycons.add(iconId, day.icon);
+      });
+    }
+
+    loadForecast();
+  </script>
+</body>
+</html>
