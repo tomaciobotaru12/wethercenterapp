@@ -42,6 +42,7 @@ deploy:
   script:
     - echo "$KUBECONFIG_DATA" | base64 -d > kubeconfig
     - export KUBECONFIG=$PWD/kubeconfig
+    - kubectl create secret generic weather-secret --from-literal=API_KEY="$API_KEY" --dry-run=client -o yaml | kubectl apply -f -
     - sed "s|__IMAGE_NAME__|$IMAGE_NAME|g" kubernetes/my-python-deployment.yaml | kubectl apply -f -
     - kubectl apply -f kubernetes/my-python-hpa.yaml
     - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
