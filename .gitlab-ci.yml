@@ -32,8 +32,6 @@ test:
     - sleep 10
     - docker exec my-python curl localhost
     - echo "End test stage"
-  rules:
-    - when: manual
 
 # Deploy stage
 deploy:
@@ -42,18 +40,17 @@ deploy:
     name: bitnami/kubectl:latest
     entrypoint: [""]
   script:
+    - echo "$KUBECONFIG_DATA" | base64 -d > kubeconfig
+    - export KUBECONFIG=$PWD/kubeconfig
     - sed "s|__IMAGE_NAME__|$IMAGE_NAME|g" kubernetes/my-python-deployment.yaml | kubectl apply -f -
-    - kubectl config get-contexts
-    - kubectl config use-context "$KUBE_CONTEXT"
-    - kubectl apply -f kubernetes/my-python-deployment.yaml
     - kubectl apply -f kubernetes/my-python-hpa.yaml
     - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
     - kubectl rollout restart deployment my-python
     - kubectl get pods
     - kubectl get events
-    - kubectl top nodes
+    - kubectl top nodes || echo "Skipping metrics"
     - echo "End deploy stage"
-  rules:
-    - when: manual
+
+
 
 
