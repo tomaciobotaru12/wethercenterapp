@@ -135,31 +135,44 @@
     }
 
     async function getTodayWeather(cityName = null) {
-      const city = cityName || document.getElementById("city-input").value || "London,UK";
+  const city = cityName || document.getElementById("city-input").value || "London,UK";
 
-      try {
-        const res = await fetch("/api/weather", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ city })
-        });
+  try {
+    const res = await fetch("/api/weather", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city })
+    });
 
-        const data = await res.json();
-        const current = data.currentConditions || data.days[0];
+    const contentType = res.headers.get("content-type");
 
-        document.getElementById("current-city").textContent = data.resolvedAddress;
-        document.getElementById("current-temp").textContent = `${Math.round(current.temp)}°C`;
-        document.getElementById("current-desc").textContent = current.conditions;
-        document.getElementById("current-details").textContent = `Humidity: ${current.humidity}% | Wind: ${current.windspeed} km/h`;
-        skycons.set("current-icon", current.icon);
-        setBackground(current.icon);
-
-        localStorage.setItem("lastCity", data.resolvedAddress);
-      } catch (err) {
-        console.error("Weather fetch failed:", err);
-        alert("Could not retrieve weather. Try another city.");
-      }
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      throw new Error("Server returned non-JSON or error status");
     }
+
+    const data = await res.json();
+    const current = data.currentConditions || data.days?.[0];
+
+    if (!current) {
+      throw new Error("Incomplete weather data received");
+    }
+
+    document.getElementById("current-city").textContent = data.resolvedAddress;
+    document.getElementById("current-temp").textContent = `${Math.round(current.temp)}°C`;
+    document.getElementById("current-desc").textContent = current.conditions;
+    document.getElementById("current-details").textContent =
+      `Humidity: ${current.humidity}% | Wind: ${current.windspeed} km/h`;
+
+    skycons.set("current-icon", current.icon);
+    setBackground(current.icon);
+
+    localStorage.setItem("lastCity", data.resolvedAddress);
+  } catch (err) {
+    console.error("Weather fetch failed:", err);
+    alert("Could not retrieve weather. Please try again.");
+  }
+}
+
 
     document.getElementById("city-input").addEventListener("input", async (e) => {
       const value = e.target.value;

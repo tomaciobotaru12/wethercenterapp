@@ -124,45 +124,53 @@
     };
 
     async function loadForecast() {
-      const city = localStorage.getItem("lastCity") || "London,UK";
+  const city = localStorage.getItem("lastCity") || "London,UK";
 
-      try {
-        const res = await fetch("/api/forecast", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ city })
-        });
+  try {
+    const res = await fetch("/api/forecast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city })
+    });
 
-        const data = await res.json();
-        const forecast = document.getElementById("forecast");
-        forecast.innerHTML = "";
+    const contentType = res.headers.get("content-type");
 
-        const iconToday = data.days[0].icon;
-        document.body.style.backgroundImage = `url('${backgroundMap[iconToday] || 'clear.jpeg'}')`;
-
-        data.days.slice(0, 7).forEach(day => {
-          const dayElem = document.createElement("div");
-          dayElem.className = "day";
-          const date = new Date(day.datetime).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-          const iconId = `icon-${day.datetimeEpoch}`;
-          dayElem.innerHTML = `
-            <h3>${date}</h3>
-            <canvas id="${iconId}" class="icon"></canvas>
-            <div class="temp">${Math.round(day.tempmax)}° / ${Math.round(day.tempmin)}°C</div>
-            <div class="details">
-              ${day.conditions}<br>
-              💧 Humidity: ${day.humidity}%<br>
-              🌅 Sunrise: ${day.sunrise} | 🌇 Sunset: ${day.sunset}
-            </div>
-          `;
-          forecast.appendChild(dayElem);
-          if (day.icon) skycons.add(iconId, day.icon);
-        });
-      } catch (error) {
-        document.getElementById("forecast").innerHTML = "<p>Could not load forecast data.</p>";
-        console.error("Forecast fetch error:", error);
-      }
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      throw new Error("Server returned non-JSON or error status");
     }
+
+    const data = await res.json();
+    const forecast = document.getElementById("forecast");
+    forecast.innerHTML = "";
+
+    const iconToday = data.days[0].icon;
+    document.body.style.backgroundImage = `url('${backgroundMap[iconToday] || 'clear.jpeg'}')`;
+
+    data.days.slice(0, 7).forEach(day => {
+      const dayElem = document.createElement("div");
+      dayElem.className = "day";
+      const date = new Date(day.datetime).toLocaleDateString(undefined, {
+        weekday: 'long', month: 'short', day: 'numeric'
+      });
+      const iconId = `icon-${day.datetimeEpoch}`;
+      dayElem.innerHTML = `
+        <h3>${date}</h3>
+        <canvas id="${iconId}" class="icon"></canvas>
+        <div class="temp">${Math.round(day.tempmax)}° / ${Math.round(day.tempmin)}°C</div>
+        <div class="details">
+          ${day.conditions}<br>
+          💧 Humidity: ${day.humidity}%<br>
+          🌅 Sunrise: ${day.sunrise} | 🌇 Sunset: ${day.sunset}
+        </div>
+      `;
+      forecast.appendChild(dayElem);
+      if (day.icon) skycons.add(iconId, day.icon);
+    });
+  } catch (error) {
+    document.getElementById("forecast").innerHTML = "<p>Could not load forecast data.</p>";
+    console.error("Forecast fetch error:", error);
+  }
+}
 
     loadForecast();
   </script>
