@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-python
-          image: "${IMAGE_NAME}"  
+          image: __IMAGE_NAME__
           imagePullPolicy: Always  
           ports:
             - containerPort: 80

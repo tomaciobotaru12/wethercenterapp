@@ -42,6 +42,7 @@ deploy:
     name: bitnami/kubectl:latest
     entrypoint: [""]
   script:
+    - sed "s|__IMAGE_NAME__|$IMAGE_NAME|g" kubernetes/my-python-deployment.yaml | kubectl apply -f -
     - kubectl config get-contexts
     - kubectl config use-context "$KUBE_CONTEXT"
     - kubectl apply -f kubernetes/my-python-deployment.yaml
