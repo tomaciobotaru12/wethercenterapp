@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: my-python
-          image: tomafcsb/my-python-web-server
+          image: "${IMAGE_NAME}"  
+          imagePullPolicy: Always  
           ports:
             - containerPort: 80
           env:
