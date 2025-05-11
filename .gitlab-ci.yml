@@ -6,6 +6,7 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
 
+# Build stage
 build:
   stage: build
   image: docker:27.4.1
@@ -13,12 +14,12 @@ build:
     - docker:27.4.1-dind
   script:
     - docker info
-    - docker build -f Dockerfile . -t my-python-web-server
-    - docker login --username tomafcsb -p Flacara2004
-    - docker tag my-python-web-server tomafcsb/my-python-web-server
-    - docker push tomafcsb/my-python-web-server
+    - docker build -f Dockerfile . -t $IMAGE_NAME
+    - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+    - docker push $IMAGE_NAME
     - echo "End build stage"
 
+# Test stage
 test:
   stage: test
   image: docker:27.4.1
@@ -26,30 +27,32 @@ test:
     - docker:27.4.1-dind
   script:
     - docker info
-    - docker pull tomafcsb/my-python-web-server
-    - docker run -d --name my-python tomafcsb/my-python-web-server
+    - docker pull $IMAGE_NAME
+    - docker run -d --name my-python $IMAGE_NAME
     - sleep 10
-    - docker exec my-python /bin/bash -c 'curl localhost'
+    - docker exec my-python curl localhost
     - echo "End test stage"
   rules:
     - when: manual
 
+# Deploy stage
 deploy:
   stage: deploy
   image:
     name: bitnami/kubectl:latest
-    entrypoint: ['']
+    entrypoint: [""]
   script:
     - kubectl config get-contexts
-    - kubectl config use-context $KUBE_CONTEXT
+    - kubectl config use-context "$KUBE_CONTEXT"
     - kubectl apply -f kubernetes/my-python-deployment.yaml
     - kubectl apply -f kubernetes/my-python-hpa.yaml
     - kubectl apply -f kubernetes/my-python-do-lb-service.yaml
-    - kubectl rollout restart deployment my-python  # 💥 This restarts pods!
+    - kubectl rollout restart deployment my-python
     - kubectl get pods
     - kubectl get events
     - kubectl top nodes
     - echo "End deploy stage"
   rules:
     - when: manual
+
 

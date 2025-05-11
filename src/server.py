@@ -6,12 +6,15 @@ import logging
 import json
 import urllib.parse
 import urllib.request
+import time
 
-# === CONFIG ===
-API_KEY = "GZ89HBFLCJ8XLT7R8HEQJSTKK"
+API_KEY = os.environ.get("API_KEY", "fallback-if-not-set")
+
 WEATHER_API_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
 
-# Logging setup
+CACHE = {}
+CACHE_TTL = 300
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
@@ -40,9 +43,26 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b"Not found")
             return
 
+        cache_key = (self.path, city)
+        now = time.time()
+
+        if cache_key in CACHE:
+            cached = CACHE[cache_key]
+            if now - cached["timestamp"] < CACHE_TTL:
+                logging.info(f"Serving from cache: {cache_key}")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(cached["data"])
+                return
+
+        logging.info("Sleeping 1.5s to avoid API flood...")
+        time.sleep(1.5)
+
         try:
             with urllib.request.urlopen(api_url) as response:
                 weather_data = response.read()
+                CACHE[cache_key] = {"timestamp": now, "data": weather_data}
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -80,8 +100,8 @@ def run_server(port, use_https=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple Python Web Server")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 80)), help="Port to run the server on")
-    parser.add_argument("--https", action="store_true", help="Enable HTTPS mode")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 80)))
+    parser.add_argument("--https", action="store_true")
     args = parser.parse_args()
 
     run_server(args.port, args.https)

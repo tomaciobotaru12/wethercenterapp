@@ -15,21 +15,16 @@ spec:
         app: my-python-app
     spec:
       containers:
-      - name: my-python
-        image: tomafcsb/my-python-web-server
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        env:
-        - name: PORT
-          value: "80"
-        - name: CERT_FILE
-          value: "/app/certificates/wethercenter.crt"
-        - name: KEY_FILE
-          value: "/app/certificates/wethercenter.key"
-        resources:
-          requests:
-            cpu: 50m
-          limits:
-            cpu: 100m
+        - name: my-python
+          image: tomafcsb/my-python-web-server
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_KEY
+              value: "${API_KEY}"  
+            - name: PORT
+              value: "80"
+          resources:
+            limits:
+              cpu: "100m"
+
