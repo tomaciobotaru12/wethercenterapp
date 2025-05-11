@@ -8,7 +8,7 @@ import urllib.parse
 import urllib.request
 import time
 
-API_KEY ="GZ89HBFLCJ8XLT7R8HEQJSTKK"
+API_KEY =os.environ.get("API_KEY", "fallback-if-not-set")
 
 WEATHER_API_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
 
