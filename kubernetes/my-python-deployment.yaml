@@ -21,10 +21,14 @@ spec:
             - containerPort: 80
           env:
             - name: API_KEY
-              value: "${API_KEY}"  
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: API_KEY
             - name: PORT
               value: "80"
           resources:
             limits:
               cpu: "100m"
+
 
