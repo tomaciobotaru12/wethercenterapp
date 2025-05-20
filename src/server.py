@@ -8,8 +8,7 @@ import urllib.parse
 import urllib.request
 import time
 
-API_KEY =os.environ.get("API_KEY", "fallback-if-not-set")
-
+API_KEY = os.environ.get("API_KEY", "fallback-if-not-set")
 WEATHER_API_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
 
 CACHE = {}
@@ -61,14 +60,22 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             logging.error(f"API error: {e}")
             self._send_json_response(500, {"error": "Error fetching weather data"})
 
+    def _add_security_headers(self):
+        self.send_header("Content-Security-Policy", 
+                         "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; "
+                         "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                         "connect-src 'self' https://geocoding-api.open-meteo.com https://geocode.maps.co")
+
     def _send_json_response(self, code, payload):
         self.send_response(code)
+        self._add_security_headers()
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode("utf-8"))
 
     def _send_raw_json(self, code, raw_bytes):
         self.send_response(code)
+        self._add_security_headers()
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(raw_bytes)
@@ -104,3 +111,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_server(args.port, args.https)
+
