@@ -6,7 +6,7 @@ metadata:
     app: my-python-app
   annotations:
     service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
-    service.beta.kubernetes.io/do-loadbalancer-certificate-name: "wethercenter.eu"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-name: "wethercenter"
     service.beta.kubernetes.io/do-loadbalancer-disable-lets-encrypt-dns-records: "false"
 spec:
   type: LoadBalancer
