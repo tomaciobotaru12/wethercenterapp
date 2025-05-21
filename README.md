@@ -4,7 +4,7 @@
 
 ## 🌐 Demo
 
-> Live demo: [https://weathercenter.eu](https://weathercenter.eu)  
+> Live demo: [https://wethercenter.eu](https://wethercenter.eu)  
 > Background examples: sunny day, rainy weather, night mode, snowy day
 
 ---
@@ -29,7 +29,7 @@
 - Background changes based on weather conditions (e.g., rain, snow, night)
 - In-memory caching with TTL for performance
 - Horizontal auto-scaling based on CPU load
-- SSL certificate and custom domain (`weathercenter.eu`)
+- SSL certificate and custom domain (`wethercenter.eu`)
 - Fully automated CI/CD deployment via GitLab pipelines
 
 ---
