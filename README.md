@@ -50,7 +50,9 @@ test – runs the container and performs a simple health check
 
 deploy – applies Kubernetes configuration and restarts the deployment
 
-☸️ Kubernetes
+---
+
+## ☸️ Kubernetes
 Useful commands:
 
 bash
@@ -69,17 +71,17 @@ my-python-hpa.yaml: activates autoscaling between 2–10 replicas
 my-python-do-lb-service.yaml: exposes the app via a public LoadBalancer
 
 
-🔐 Security
+## 🔐 Security
 HTTPS enabled via a custom SSL certificate (wethercenter.crt)
 
 Backend sets Content-Security-Policy headers
 
 Sensitive variables stored as Kubernetes Secrets
 
-📄 License
+## 📄 License
 MIT License © 2025 Toma Ciobotaru
 
-👨‍🎓 Author
+## 👨‍🎓 Author
 Project developed by Toma Ciobotaru
 As part of the master’s dissertation project:
 
