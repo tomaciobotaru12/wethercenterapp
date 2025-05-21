@@ -20,31 +20,7 @@
 - **Cloud**: DigitalOcean LoadBalancer
 - **Security**: HTTPS with custom SSL certificate
 
----
 
-## 📦 Project Structure
-
-project-root/
-├── src/
-│ ├── index.html
-│ ├── forecast.html
-│ ├── server.py
-│ ├── *.jpeg / *.png / *.js
-├── kubernetes/
-│ ├── my-python-deployment.yaml
-│ ├── my-python-hpa.yaml
-│ ├── my-python-do-lb-service.yaml
-├── certificates/
-│ ├── wethercenter.crt
-│ ├── wethercenter.key
-├── Dockerfile
-├── .gitlab-ci.yml
-
-yaml
-Copiază
-Editează
-
----
 
 ## 🚀 Features
 
