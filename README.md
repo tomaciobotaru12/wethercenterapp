@@ -38,7 +38,7 @@
 
 Build the image locally:
 
-```bash
+
 docker build -t weathercenter .
 docker run -p 80:80 weathercenter
 🔁 GitLab CI/CD Pipeline
