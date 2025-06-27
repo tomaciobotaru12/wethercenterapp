@@ -76,7 +76,7 @@ HTTPS enabled via a custom SSL certificate (wethercenter.crt)
 
 Backend sets Content-Security-Policy headers
 
-Sensitive variables stored as Kubernetes Secrets
+Sensitive variables stored as Kubernetes Secrets and CI/CD variables
 
 
 
