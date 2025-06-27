@@ -83,8 +83,6 @@ MIT License © 2025 Toma Ciobotaru
 
 ## 👨‍🎓 Author
 Project developed by Toma Ciobotaru
-As part of the master’s dissertation project:
 
-“Scalability of Web Applications in Distributed Infrastructures”
-Academia de Studii Economice – Faculty of Cybernetics, Statistics and Economic Informatics
-Coordinator: Professor Răzvan Zota
+
+
