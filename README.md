@@ -78,8 +78,7 @@ Backend sets Content-Security-Policy headers
 
 Sensitive variables stored as Kubernetes Secrets
 
-## 📄 License
-MIT License © 2025 Toma Ciobotaru
+
 
 ## 👨‍🎓 Author
 Project developed by Toma Ciobotaru
