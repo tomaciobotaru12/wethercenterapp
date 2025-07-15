@@ -6,7 +6,7 @@
 
 > The live demo is temporarily unavailable. Below is a snapshot of the monitoring dashboard:
 
-![Kubernetes Autoscaling Dashboard](https://github.com/tomaciobotaru12/wethercenterapp/issues/1#issue-3232602103)
+![Kubernetes Autoscaling Dashboard](https://github.com/user-attachments/assets/14cae324-15a9-4b76-9d22-c3f000ed9a59)
 
 ---
 
