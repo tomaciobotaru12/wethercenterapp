@@ -2,10 +2,11 @@
 
 **WeatherCenter** is a containerized and scalable web application that provides real-time weather forecasts for cities around the world. It is developed with Python, HTML, and JavaScript, and orchestrated using Kubernetes with automated delivery through GitLab CI/CD.
 
-## 🌐 Demo
+## 🖼️ Application Preview
 
-> Live demo: [https://wethercenter.eu](https://wethercenter.eu)  
-> Background examples: sunny day, rainy weather, night mode, snowy day
+> The live demo is temporarily unavailable. Below is a snapshot of the monitoring dashboard:
+
+![Kubernetes Autoscaling Dashboard](https://github.com/tomaciobotaru12/wethercenterapp/issues/1#issue-3232602103)
 
 ---
 
