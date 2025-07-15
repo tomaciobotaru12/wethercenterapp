@@ -4,7 +4,7 @@
 
 ## 🖼️ Application Preview
 
-⚠️ The live demo is currently unavailable due to maintenance and deployment changes.
+⚠️ The live demo is currently unavailable due to maintenance and deployment costs.
 In the meantime, below is a preview of the autoscaling behavior of the application, monitored via Grafana.
 
 This screenshot captures a live Grafana dashboard powered by Prometheus, showcasing real-time Kubernetes cluster metrics. During a simulated load test using K6, the application scaled up from 2 to 14 pods in response to increased CPU usage.
